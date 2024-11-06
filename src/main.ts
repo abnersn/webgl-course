@@ -17,10 +17,10 @@ const { program } = setupProgram(gl);
 
 // prettier-ignore
 const vertexPositions = new Float32Array([
-  1, 1,
-  -1, 1,
   -1, -1,
   1, -1,
+  1, 1,
+  -1, 1,
 ]);
 const vertexBuffer = gl.createBuffer();
 
@@ -34,9 +34,9 @@ const vertexColors = new Float32Array([
 const colorsBuffer = gl.createBuffer();
 
 // prettier-ignore
-const vertexIndices = new Float32Array([
-  0, 1, 2,
-  2, 3, 0
+const vertexIndices = new Uint16Array([
+  1, 2, 0,
+  0, 2, 3
 ])
 const indicesBuffer = gl.createBuffer();
 
