@@ -1,10 +1,10 @@
 attribute vec4 positions;
-attribute vec4 colors;
+attribute vec2 uvs;
 
-varying vec4 v_colors;
+varying vec2 v_uvs;
 
 void main() {
   gl_Position = positions;
 
-  v_colors = colors;
+  v_uvs = uvs;
 }

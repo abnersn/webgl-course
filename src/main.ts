@@ -25,15 +25,6 @@ const vertexPositions = new Float32Array([
 const vertexBuffer = gl.createBuffer();
 
 // prettier-ignore
-const vertexColors = new Float32Array([
-  1, 0, 0,
-  0, 1, 0,
-  0, 0, 1,
-  0.5, 0.3, 0.2
-]);
-const colorsBuffer = gl.createBuffer();
-
-// prettier-ignore
 const vertexIndices = new Uint16Array([
   1, 2, 0,
   0, 2, 3
@@ -41,7 +32,47 @@ const vertexIndices = new Uint16Array([
 const indicesBuffer = gl.createBuffer();
 
 const positionAttrib = gl.getAttribLocation(program, "positions");
-const colorsAttrib = gl.getAttribLocation(program, "colors");
+const uvsAttrib = gl.getAttribLocation(program, "uvs");
+
+// Texture
+// prettier-ignore
+const uvs = new Float32Array([
+  0, 0,
+  1, 0,
+  1, 1,
+  0, 1
+]);
+const uvsBuffer = gl.createBuffer();
+const myTexture = gl.createTexture();
+
+// Plug texture unit 0 to the sampler
+gl.useProgram(program);
+const textureSampler = gl.getUniformLocation(program, "myTexture");
+gl.uniform1i(textureSampler, 0);
+
+const image = new Image();
+image.onload = () => {
+  // Bind texture to the buffer
+  gl.bindTexture(gl.TEXTURE_2D, myTexture);
+
+  // Flip UVs
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+  // Make texture repeat itself on st (xy)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+  // Interpolation and subsampling
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+  // Supply image to texture
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  // Unset the buffer
+  gl.bindTexture(gl.TEXTURE_2D, null);
+};
+image.src = "/water-texture.png";
 
 // Rendering loop
 requestAnimationFrame(renderFrame);
@@ -65,21 +96,27 @@ function renderFrame() {
   }
 
   {
-    // Bind js colors to array buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertexColors, gl.STATIC_DRAW);
+    // Bind js uvs to array buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvsBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
 
     // Plug shader's colors attribute to array buffer
-    gl.enableVertexAttribArray(colorsAttrib);
+    gl.enableVertexAttribArray(uvsAttrib);
 
     // Inform about how to consume the data
-    gl.vertexAttribPointer(colorsAttrib, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(uvsAttrib, 2, gl.FLOAT, false, 0, 0);
   }
 
   {
     // Bind js indexes to indices buffer
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, vertexIndices, gl.STATIC_DRAW);
+  }
+
+  if (image.complete) {
+    // Activate texture unit 0 and bind myTexture to it
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, myTexture);
   }
 
   gl.useProgram(program);
