@@ -1,5 +1,5 @@
-import fragmentShaderSrc from "src/shaders/fragment.glsl";
-import vertexShaderSrc from "src/shaders/vertex.glsl";
+import fragmentShaderSrc from "./shaders/fragment.glsl";
+import vertexShaderSrc from "./shaders/vertex.glsl";
 
 function createShader(gl: WebGLRenderingContext, type: GLenum, source: string) {
   const shader = gl.createShader(type)!;
@@ -13,7 +13,7 @@ function createShader(gl: WebGLRenderingContext, type: GLenum, source: string) {
   throw new Error(message);
 }
 
-export function setupShaders(gl: WebGLRenderingContext) {
+export function setupProgram(gl: WebGLRenderingContext) {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSrc);
   const fragmentShader = createShader(
     gl,

@@ -1,4 +1,4 @@
-import { setupShaders } from "./utils";
+import { setupProgram } from "./utils";
 
 const CANVAS_WIDTH = 512;
 const CANVAS_HEIGHT = 512;
@@ -13,19 +13,19 @@ canvas.style.setProperty("height", `${CANVAS_HEIGHT}px`);
 
 const gl = canvas.getContext("webgl")!;
 
-const { program, vertexShader, fragmentShader } = setupShaders(gl);
+const { program } = setupProgram(gl);
 
 // prettier-ignore
 const vertexPositions = new Float32Array([
+  1, 1,
+  -1, 1,
   -1, -1,
   1, -1,
-  1, 1,
-  -1, 1
 ]);
 const vertexBuffer = gl.createBuffer();
 
 // prettier-ignore
-const colors = new Float32Array([
+const vertexColors = new Float32Array([
   1, 0, 0,
   0, 1, 0,
   0, 0, 1,
@@ -34,13 +34,13 @@ const colors = new Float32Array([
 const colorsBuffer = gl.createBuffer();
 
 // prettier-ignore
-const indices = new Float32Array([
+const vertexIndices = new Float32Array([
   0, 1, 2,
   2, 3, 0
 ])
-const indexBuffer = gl.createBuffer();
+const indicesBuffer = gl.createBuffer();
 
-const positionAttrib = gl.getAttribLocation(program, "position");
+const positionAttrib = gl.getAttribLocation(program, "positions");
 const colorsAttrib = gl.getAttribLocation(program, "colors");
 
 // Rendering loop
@@ -67,7 +67,7 @@ function renderFrame() {
   {
     // Bind js colors to array buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexColors, gl.STATIC_DRAW);
 
     // Plug shader's colors attribute to array buffer
     gl.enableVertexAttribArray(colorsAttrib);
@@ -78,10 +78,10 @@ function renderFrame() {
 
   {
     // Bind js indexes to indices buffer
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, vertexIndices, gl.STATIC_DRAW);
   }
 
   gl.useProgram(program);
-  gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 }
