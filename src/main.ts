@@ -45,11 +45,6 @@ const uvs = new Float32Array([
 const uvsBuffer = gl.createBuffer();
 const myTexture = gl.createTexture();
 
-// Plug texture unit 0 to the sampler
-gl.useProgram(program);
-const textureSampler = gl.getUniformLocation(program, "myTexture");
-gl.uniform1i(textureSampler, 0);
-
 const image = new Image();
 image.onload = () => {
   // Bind texture to the buffer
@@ -59,8 +54,8 @@ image.onload = () => {
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
   // Make texture repeat itself on st (xy)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
 
   // Interpolation and subsampling
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -75,6 +70,7 @@ image.onload = () => {
 image.src = "/water-texture.png";
 
 // Rendering loop
+const start = Date.now();
 requestAnimationFrame(renderFrame);
 function renderFrame() {
   requestAnimationFrame(renderFrame);
@@ -120,5 +116,15 @@ function renderFrame() {
   }
 
   gl.useProgram(program);
+
+  {
+    const textureSamplerLocation = gl.getUniformLocation(program, "myTexture");
+    gl.uniform1i(textureSamplerLocation, 0);
+
+    const timeLocation = gl.getUniformLocation(program, "time");
+    const time = Date.now() - start;
+    gl.uniform1f(timeLocation, time * 0.001);
+  }
+
   gl.drawElements(gl.TRIANGLES, vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 }
